@@ -2,16 +2,27 @@ import pandas as pd
 import re
 
 # Load Excel file
-excel_file = pd.ExcelFile('111v.xlsx')
 
-# Loop through all sheets and read data into DataFrame
+
+# 讀取Excel檔案
+excel_file = pd.ExcelFile("112v.xlsx")
+
+
+# read all sheets
 all_df = pd.DataFrame()
 for sheet_name in excel_file.sheet_names:
     df = excel_file.parse(sheet_name)
-    if re.match(r"[A-Za-z]\d+$", sheet_name):
-        df.rename(columns={'指導\n老師': '指導老師'}, inplace=True)
-        all_df = all_df.append(df.loc[:, ['項目', '組別', '年級', '學校', '姓名', '指導老師', '號碼', '成績']], ignore_index=True)
+    sheet_df = pd.read_excel("112v.xlsx", sheet_name=sheet_name, header=None)
+    all_df = all_df.append(sheet_df, ignore_index=True)
 
-all_df.rename(columns={'項目': 'contest', '組別': 'group', '年級': 'grade', '學校': 'school', '姓名': 'name', '指導老師': 'teacher', '號碼': 'id', '成績': 'score'}, inplace=True)
-all_df.dropna(subset=['id'], inplace=True)
-all_df.to_json('contestants.json', orient='records')
+# 加上欄位名稱
+all_df.columns = ["項目", "組別", "年級", "學校", "選手", "教練", "編號"]
+all_df.rename (columns={"項目": "contest", "組別": "group", "年級": "grade", "學校": "school", "選手": "name", "教練": "teacher", "編號": "id"},inplace=True)
+all_df.dropna(subset=["id"], inplace=True)
+all_df.to_json("contestants.json", orient="records")
+
+    
+
+# all_df.rename(columns={'項目': 'contest', '組別': 'group', '年級': 'grade', '學校': 'school', '姓名': 'name', '指導老師': 'teacher', '號碼': 'id', '成績': 'score'}, inplace=True)
+# all_df.dropna(subset=['id'], inplace=True)
+# all_df.to_json('contestants.json', orient='records')
