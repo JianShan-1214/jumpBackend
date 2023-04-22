@@ -87,10 +87,13 @@ async def contestants(register: Register = None):  # type: ignore
     return {"message": "Contestant added successfully"}
 
 @app.get("/contestants/{contestant_id}")
-async def getContestant(contestant_id: str = None):
+async def getContestant(contestant_id: Union[str, int] = None):
     data = pd.read_json("./contestants.json")
+    if pd.api.types.is_integer_dtype(data["id"]):
+        contestant_id = int(contestant_id)
     contestant = data[data["id"] == contestant_id]
     return Response(content=contestant.to_json(orient="records"), media_type="application/json")
+
 
 if __name__ == "__main__":
     uvicorn.run('app:app', host="0.0.0.0", port=8000 ,reload=True)
